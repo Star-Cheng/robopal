@@ -5,6 +5,7 @@ from robopal.robots.diana_med import DianaMed
 from robopal.robots.dual_arms import DualDianaMed
 from robopal.robots.panda import Panda
 from robopal.robots.ur5e import UR5e
+from robopal.robots.piper import Piper
 from robopal.envs import RobotEnv
 
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +15,7 @@ MANIPULATORS = {
     'Panda' : Panda,
     'UR5e' : UR5e,
     'DualDianaMed': DualDianaMed,
+    'PiPER' : Piper
 }
 
 if __name__ == "__main__":
@@ -62,10 +64,10 @@ if __name__ == "__main__":
             action = 0.1 * np.ones(env.robot.jnt_num)
 
         elif options['ctrl'] == 'CARTIMP':
-            action = np.array([0.33, -0.39, 0.66, 1.0, 0.0, 0.0, 0])
+            action = np.array([0.2, 0.2, 0.4, 0, 0.7071, -0.7071, 0])
 
         elif options['ctrl'] == 'CARTIK':
-            action = np.array([0.33, -0.3, 0.5, 1, 0, 0, 0])
+            action = np.array([0.2, 0.2, 0.1, 0, 0.7071, -0.7071, 0])
     else:
         if options['ctrl'] == 'JNTIMP':
             action = [np.array([0.3, -0.4, 0.7, 0.3, -0.4, 0.7, 0]),

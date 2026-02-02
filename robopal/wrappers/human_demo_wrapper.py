@@ -76,7 +76,7 @@ class HumanDemonstrationWrapper(object):
 
         env_args = {
             "env_name": self.env.get_configs("env_name"),
-            "type": 4,  # ROBOPAL_TYPE in robomimic4pal
+            "type": 2,  # ROBOPAL_TYPE in robomimic4pal
             # pass to the env constructor
             "env_kwargs": {
                 "robot": self.env.get_configs("robot"),
@@ -158,7 +158,7 @@ class HumanDemonstrationWrapper(object):
                 # render actions
                 if self.is_render_actions:
                     # change to local frame
-                    offset = self.env.robot.kine_data.body(self.env.robot.base_link_name["agent0"]).xpos
+                    offset = self.env.robot.kine_data.body(self.env.robot.base_link_name["agent0"]).xpos + [0.05, 0.0, 0.13]
                     render_pos = action[:3] + offset
                     self.env.renderer.add_visual_point(render_pos)
 
@@ -195,6 +195,9 @@ class HumanDemonstrationWrapper(object):
     def save_collection(self):
         """ Save the collected data in the hdf5 file.
         """
+        model_file = os.path.abspath(self.env.get_configs("model_file"))
+        self.collection.model_file = model_file
+
         # drop unsuccessful episode
         if self.is_drop_unsuccess_exp:
             if not self.env._get_info()["is_success"]:
@@ -220,8 +223,8 @@ class HumanDemonstrationWrapper(object):
         # create datasets for each data type
         ep_data_grp.create_dataset("states", data=np.array(self.collection.states, dtype=np.float32))
         ep_data_grp.create_dataset("actions", data=np.array(self.collection.actions, dtype=np.float32))
-        ep_data_grp.create_dataset("rewards", data=np.array(self.collection.actions, dtype=np.float32))
-        ep_data_grp.create_dataset("dones", data=np.array(self.collection.actions, dtype=np.float32))
+        ep_data_grp.create_dataset("rewards", data=np.array(self.collection.rewards, dtype=np.float32))
+        ep_data_grp.create_dataset("dones", data=np.array(self.collection.dones, dtype=np.float32))
 
         obs_group = ep_data_grp.create_group("obs")
         for key, value in self.collection.obs.items():

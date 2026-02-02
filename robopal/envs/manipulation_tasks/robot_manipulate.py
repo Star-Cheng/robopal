@@ -44,7 +44,7 @@ class ManipulateEnv(RobotEnv):
         self.is_randomize_end = is_randomize_end
         self.is_randomize_object = is_randomize_object
 
-        self.max_episode_steps = 50
+        self.max_episode_steps = 500
 
         self.obs_dim: np.ndarray = None
         self.action_dim: np.ndarray = None
@@ -93,7 +93,7 @@ class ManipulateEnv(RobotEnv):
 
         obs = self._get_obs()
         reward = self.compute_rewards()
-        terminated = False
+        terminated = 1 if reward == 1 else 0
         truncated = True if self._timestep >= self.max_episode_steps else False
         info = self._get_info()
 
@@ -111,8 +111,8 @@ class ManipulateEnv(RobotEnv):
         """
         d = self.goal_distance(achieved_goal, desired_goal)
         if kwargs:
-            return -(d >= kwargs['th']).astype(np.float64)
-        return -(d >= 0.02).astype(np.float64)
+            return (d <= kwargs['th']).astype(np.float64)
+        return (d <= 0.02).astype(np.float64)
 
     def _is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray, th=0.02) -> np.ndarray:
         """ Compute whether the achieved goal successfully achieved the desired goal.

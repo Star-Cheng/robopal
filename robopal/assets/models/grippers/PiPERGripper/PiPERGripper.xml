@@ -1,0 +1,65 @@
+<mujoco model="piper_gripper">
+  <compiler angle="radian" meshdir="assets"/>
+
+  <option integrator="implicitfast"/>  
+
+    <default>
+      <default class="gripper">
+        <joint frictionloss="0" type="slide"/>
+        <position forcerange="-10 10"/>
+      </default>
+      <default class="visual">
+        <geom group="2" type="mesh" contype="0" conaffinity="0" density="0"/>
+      </default>
+      <default class="collision">
+        <geom group="3" type="capsule"/>
+      </default>
+    </default>
+
+  <asset>
+    <material class="gripper" name="gray_mat" rgba="0.59 0.59 0.59 1"/>
+    <mesh class="gripper" file="assets/link7.stl"/>
+    <mesh class="gripper" file="assets/link8.stl"/>
+  </asset>
+
+  <worldbody>
+    <body name="gripper_base" childclass="gripper">
+      <body name="eef" pos="0 0 0.13503" quat="1 0 0 0">
+        <site name="eef_site" pos="0 0 0" size="0.01" rgba="1 0 0 1"/>
+        <!-- 可选：添加坐标系可视化（X/Y/Z轴） -->
+        <site name="eef_x" pos="0.05 0 0" size="0.005 0.05" type="cylinder" quat="0.707 0 0.707 0" rgba="1 0 0 0.5"/>
+        <site name="eef_y" pos="0 0.05 0" size="0.005 0.05" type="cylinder" quat="0.707 0.707 0 0" rgba="0 1 0 0.5"/>
+        <site name="eef_z" pos="0 0 0.05" size="0.005 0.05" type="cylinder" quat="1 0 0 0" rgba="0 0 1 0.5"/>
+      </body>
+      <body name="link7" pos="0 0 0.13503" quat="1.89468e-08 1.89469e-08 0.707108 0.707105" gravcomp="1">
+        <inertial pos="-0.000277778 -0.0467673 -0.00921029" quat="0.46134 0.536174 -0.553273 0.439968"
+            mass="0.0264823" diaginertia="0.001 0.001 0.001"/>
+        <joint name="joint7" axis="0 0 -1" class="gripper" range="0 0.035"/>
+        <geom mesh="link7" material="gray_mat" class="visual"/>
+        <geom type="box" size=".012 .015 .0025" pos="0 -0.015 -0.0025" rgba="1 0 0 .2" class="collision" 
+        conaffinity="1" contype="1" friction="1 1 1" condim="4" solimp="0.99 0.99 0.01" solref="0.001 1"/>
+        <geom type="box" size=".015 .015 .0025" pos="0 -0.045 -0.0025" rgba="0 0 1 .2" class="collision" 
+        conaffinity="1" contype="1" friction="1 1 1" condim="4" solimp="0.99 0.99 0.01" solref="0.001 1"/>
+      </body>
+      <body name="link8" pos="0 0 0.13503" quat="1.89468e-08 -1.89469e-08 -0.707108 0.707105" gravcomp="1">
+        <inertial pos="0.000277817 0.0467674 -0.0092103" quat="0.553273 0.439968 -0.46134 0.536174"
+            mass="0.0264822" diaginertia="0.001 0.001 0.001"/>
+        <joint name="joint8" axis="0 0 1" class="gripper" range="-0.035 0"/>
+        <geom mesh="link8" material="gray_mat" class="visual"/>
+        <geom type="box" size=".012 .015 .0025" pos="0 0.015 -0.0025" rgba="1 0 0 .2" class="collision" 
+        conaffinity="1" contype="1" friction="1 1 1" condim="4" solimp="0.99 0.99 0.01" solref="0.001 1"/>
+        <geom type="box" size=".015 .015 .0025" pos="0 0.045 -0.0025" rgba="0 0 1 .2" class="collision" 
+        conaffinity="1" contype="1" friction="1 1 1" condim="4" solimp="0.99 0.99 0.01" solref="0.001 1"/>
+      </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <!-- <position name="gripper" joint="joint7" class="gripper" kp="40" kv="5"/>  -->
+    <position name="gripper" joint="joint7" class="gripper" kp="1000" kv="50" forcerange="-100 100" ctrlrange="0 0.035" ctrllimited="true"/>
+  </actuator>
+
+  <equality>
+    <joint joint1="joint7" joint2="joint8" polycoef="0 -1 0 0 0"/>
+  </equality>
+</mujoco>

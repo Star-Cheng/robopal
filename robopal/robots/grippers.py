@@ -89,3 +89,18 @@ class PandaHand(BaseEnd):
             self.robot_data.joint(f'{self.agent_id}_finger_joint1').qpos,
             self.robot_data.joint(f'{self.agent_id}_finger_joint1').qvel * self.dt
         ], axis=0)
+
+
+class PiPERGripper(BaseEnd):
+
+    _ctrl_range = [0, 0.035]
+
+    def apply_action(self, action):
+        self.robot_data.actuator(f'{self.agent_id}_gripper').ctrl[0] = action
+
+    def get_finger_observations(self):
+        return np.concatenate([
+            self.robot_data.joint(f'{self.agent_id}_joint7').qpos,
+            self.robot_data.joint(f'{self.agent_id}_joint7').qvel * self.dt
+        ], axis=0)
+    

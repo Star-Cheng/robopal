@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     env = robopal.make(
         "PickAndPlace-v1",
-        robot="PandaPickAndPlace",
+        robot="PiperPickAndPlace",
         render_mode='human',
         control_freq=20,
         controller='CARTIK',
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     
     env = HumanDemonstrationWrapper(
         env, 
-        device=Gamepad,
+        device=Keyboard,
         collect_freq = 4,
         saved_action_type="position",
         is_render_actions=True,

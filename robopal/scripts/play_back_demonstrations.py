@@ -76,4 +76,5 @@ def play_demonstrations(demo_dir=None):
     env.renderer.close()
 
 if __name__ == "__main__":
-    play_demonstrations("robopal/collections/collections_1719978428_4136665")
+    #TODO 1.更改以下路径，匹配你的演示数据路径
+    play_demonstrations("/home/gym/code/rl/grasp/robopal/robopal/collections/collections_1770002897_7142746")

@@ -5,12 +5,15 @@ import robopal.commons.transform as trans
 from robopal.robots.diana_med import DianaPickAndPlace
 from robopal.wrappers import GoalEnvWrapper
 
+import gymnasium as gym
+from gymnasium.envs.registration import register
+
 class PickAndPlaceEnv(ManipulateEnv):
 
     name = 'PickAndPlace-v1'
     
     def __init__(self,
-                 robot="PandaPickAndPlace",
+                 robot="PiperPickAndPlace",
                  render_mode='human',
                  control_freq=20,
                  is_show_camera_in_cv=False,
@@ -44,7 +47,7 @@ class PickAndPlaceEnv(ManipulateEnv):
         self.max_action = 1.0
         self.min_action = -1.0
 
-        self.max_episode_steps = 50
+        self.max_episode_steps = 500
 
         self.is_randomize_goal = is_randomize_goal
 
@@ -56,13 +59,12 @@ class PickAndPlaceEnv(ManipulateEnv):
         """
         obs = np.zeros(self.obs_dim)
 
-        obs[0:15] = np.concatenate([  
+        obs[0:12] = np.concatenate([  
             self.robot.get_arm_qpos(),
             # gripper position in global coordinates
-            end_pos := self.get_site_pos('0_grip_site'),
+            end_pos := self.get_site_pos('goal_site'),
             # gripper linear velocity
-            self.get_site_xvelp('0_grip_site') * self.dt,
-            self.robot.end['agent0'].get_finger_observations()
+            self.get_site_xvelp('goal_site') * self.dt,
         ])
         obs[15:18] = (  # block position in global coordinates
             object_pos := self.get_body_pos('green_block')
@@ -70,9 +72,9 @@ class PickAndPlaceEnv(ManipulateEnv):
         obs[18:22] = (  # block rotation
             self.get_body_quat('green_block')
         )
-        # obs[11:14] = (  # Relative block position with respect to gripper position in globla coordinates.
-        #     end_pos - object_pos
-        # )
+        obs[12:15] = (  # Relative block position with respect to gripper position in globla coordinates.
+            end_pos - object_pos
+        )
 
         return obs.copy()
     
@@ -89,15 +91,15 @@ class PickAndPlaceEnv(ManipulateEnv):
         """
         d = self.goal_distance(self._get_achieved_goal(), self._get_desired_goal())
         if kwargs:
-            return -(d >= kwargs['th']).astype(np.float64)
-        return -(d >= 0.02).astype(np.float64)
+            return (d <= kwargs['th']).astype(np.float64)
+        return (d <= 0.02).astype(np.float64)
     
     def _get_info(self) -> dict:
         return {'is_success': self._is_success(self.get_body_pos('green_block'), self.get_site_pos('goal_site'), th=0.02)}
 
     def reset_object(self):
         if self.is_randomize_object:
-            random_x_pos, random_y_pos = np.random.uniform([0.35, -0.15], [0.55, 0.15])
+            random_x_pos, random_y_pos = np.random.uniform([0.35, -0.15], [0.45, 0.15])
             block_pose = np.array([random_x_pos, random_y_pos, 0.46, 1.0, 0.0, 0.0, 0.0])
             self.set_object_pose('green_block:joint', block_pose)
         else:
@@ -111,6 +113,18 @@ class PickAndPlaceEnv(ManipulateEnv):
 
         return super().reset_object()
 
+# 或者如果需要 GoalEnvWrapper：
+def make_env(**kwargs):
+    env_kwargs = {k: v for k, v in kwargs.items() if k != 'lang'}
+    base_env = PickAndPlaceEnv(**env_kwargs)  # 使用过滤后的参数
+    return GoalEnvWrapper(base_env)
+
+# 手动注册环境（双重保险）
+register(
+    id="PickAndPlace-v1",
+    entry_point="robopal.envs.manipulation_tasks.demo_pick_place:make_env",
+    max_episode_steps=500,
+)
 
 if __name__ == "__main__":
     env = PickAndPlaceEnv(

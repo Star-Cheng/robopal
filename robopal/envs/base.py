@@ -130,7 +130,6 @@ class MujocoEnv:
             for agent in self.agents:
                 self.robot.end[agent].reset()
         self.forward()
-
         if isinstance(options, dict):
             if "disable_reset_render" in options and options["disable_reset_render"]:
                 return
